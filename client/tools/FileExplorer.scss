@@ -1,0 +1,79 @@
+
+.component-file-explorer {
+    display:flex;
+    flex-direction: column;
+
+    > .files {
+        overflow-y:auto;
+        display:flex;
+        flex-wrap: wrap;
+        padding:20px;
+        flex-grow:1;
+        flex-shrink:1;
+        align-content: flex-start;
+
+        > .file {
+            margin: 10px;
+            flex-grow:0;
+            flex-shrink:0;
+            width: 120px;
+            text-align:center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            &:active::before {
+                transform: scale(0.9);
+            }
+    
+            &::before {
+                content: '';
+                display: block;
+                margin:0 auto;
+                background-image: url("/icons/file-empty.svg");
+                background-repeat:no-repeat;
+                background-size: contain;
+                background-position: center;
+                width: 50px;
+                height: 50px;
+                flex-grow:0;
+                flex-shrink:0;
+                    
+            }
+    
+            &.directory::before {
+                background-image: url("/icons/folder.svg");
+            }
+            &.txt::before,
+            &.ini::before {
+                background-image: url("/icons/file-text.svg");
+            }
+            &.json::before,
+            &.js::before,
+            &.css::before,
+            &.html::before,
+            &.ts::before,
+            &.tsx::before {
+                background-image: url("/icons/file-code.svg");
+            }
+        }
+    }
+
+    > .path-bar {
+        flex-grow:0;
+        flex-shrink:0;
+        border-top: 1px solid #999;
+        background: #b2d6e8;
+
+        > .path-segment {
+            display: inline-block;
+            padding: 5px;
+
+            &:not(:first-child)::before {
+                content: '>';
+                color: rgb(0, 122, 255);
+                font-weight: bold;
+            }
+        }
+    }
+}
