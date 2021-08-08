@@ -2,6 +2,7 @@
 @import "./tools/FileExplorer";
 @import "./tools/Terminal";
 @import "./tools/TextEditor";
+@import "./tools/Settings";
 
 .component-dashboard {
     display:flex;
@@ -11,6 +12,8 @@
         flex-grow:0;
         flex-shrink:0;
         background: #abcddd;
+        user-select: none;
+        -webkit-user-select: none;
 
         > .icon {
             padding: 10px 20px;
@@ -36,22 +39,22 @@
                 transition: background-color 0.1s ease-out 0.1s;
             }
             
-            &.one::after {
+            &.file-explorer::after {
                 background-image: url("/icons/folder.svg");
                 background-color: rgb(52, 170, 220);
             }
             
-            &.two::after {
+            &.terminal::after {
                 background-image: url("/icons/terminal.svg");
                 background-color: rgb(76, 217, 100);
             }
             
-            &.three::after {
+            &.text-editor::after {
                 background-image: url("/icons/notepad.svg");
                 background-color: rgb(255, 45, 85);
             }
 
-            &.four::after {
+            &.settings::after {
                 background-image: url("/icons/cog.svg");
                 background-color: #b5b5bb;
             }

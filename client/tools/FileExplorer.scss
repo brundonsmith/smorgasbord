@@ -2,7 +2,9 @@
 .component-file-explorer {
     display:flex;
     flex-direction: column;
-
+    user-select: none;
+    -webkit-user-select: none;
+    
     > .files {
         overflow-y:auto;
         display:flex;

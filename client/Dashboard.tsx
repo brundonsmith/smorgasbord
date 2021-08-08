@@ -1,35 +1,41 @@
 
-import React, { FC } from 'react'
-import { observer, useLocalObservable } from 'mobx-react-lite'
+import React, { FC, useState } from 'react'
 import { FileExplorer } from './tools/FileExplorer';
-import { given } from './utils';
+import { Settings } from './tools/Settings';
 import { Terminal } from './tools/Terminal';
 import { TextEditor } from './tools/TextEditor';
 
-type State = {
-    currentTool: ToolName | undefined
-}
-
-export const Dashboard: FC = observer(() => {
-    const state = useLocalObservable<State>(() => ({
-        currentTool: 'file-explorer'
-    }))
+export const Dashboard: FC = () => {
+    const [currentTool, setCurrentTool] = useState<ToolName>('text-editor')
+    const [openTextFile, setOpenTextFile] = useState<string|undefined>('/home/brundolf/git/jqr/README.md')
 
     return (
         <div className="component-dashboard">
             <div className="tool-icons">
-                <div className={`icon one ${state.currentTool === 'file-explorer' ? 'selected' : ''}`} onTouchStart={fakeTouchStartHandler} onClick={() => state.currentTool = 'file-explorer'}></div>
-                <div className={`icon two ${state.currentTool === 'terminal' ? 'selected' : ''}`} onTouchStart={fakeTouchStartHandler} onClick={() => state.currentTool = 'terminal'}></div>
-                <div className={`icon three ${state.currentTool === 'text-editor' ? 'selected' : ''}`} onTouchStart={fakeTouchStartHandler} onClick={() => state.currentTool = 'text-editor'}></div>
-                <div className="icon four" onTouchStart={fakeTouchStartHandler}></div>
+                {Object.keys(ALL_TOOLS).map(name =>
+                    <div
+                        className={`icon ${name} ${currentTool === name ? 'selected' : ''}`}
+                        onTouchStart={fakeTouchStartHandler}
+                        onClick={() => setCurrentTool(name as ToolName)} />)}
             </div>
             <div className="current-tool">
                 {Object.entries(ALL_TOOLS).map(([name, Component]) =>
-                    <Component selected={state.currentTool === name} />)}
+                    <Component
+                        selected={currentTool === name}
+                        openTextFile={openTextFile}
+                        onOpenTextFile={setOpenTextFile}
+                        onSetCurrentTool={setCurrentTool} />)}
             </div>
         </div>
     )
-})
+}
+
+export type ToolProps = {
+    selected: boolean,
+    openTextFile: string|undefined,
+    onOpenTextFile: (file: string) => void,
+    onSetCurrentTool: (tool: ToolName) => void,
+}
 
 function fakeTouchStartHandler() {
 }
@@ -39,4 +45,5 @@ const ALL_TOOLS = {
     'file-explorer': FileExplorer,
     'terminal': Terminal,
     'text-editor': TextEditor,
+    'settings': Settings,
 } as const;

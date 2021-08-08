@@ -1,40 +1,75 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import { API } from "../api";
 
-import monaco from "monaco-editor/min/vs/editor/editor.main.js"
+import monacoLib from 'monaco-editor'
+import { ToolProps } from "../Dashboard";
 
-export const TextEditor: FC<{ selected: boolean }> = ({ selected }) => {
-    const editorRef = useRef<HTMLTextAreaElement>(null);
-    const monacoRef = useRef<ReturnType<typeof monaco.editor.create>|undefined>(undefined);
+declare global {
+    interface Window {
+        monaco: typeof monacoLib
+    }
+}
 
-    const [openFilePath, setOpenFilePath] = useState('C:\\Users\\brundolf\\foo.json');
-    const [openFileContents, setOpenFileContents] = useState('{ "foo": "bar" }');
+export const TextEditor: FC<ToolProps> = ({ selected, openTextFile }) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const monacoRef = useRef<ReturnType<typeof monacoLib.editor.create>|undefined>(undefined);
+
+    const [fileLoaded, setFileLoaded] = useState(false);
+    const [openFileContents, setOpenFileContents] = useState('');
 
     useEffect(() => {
-        monacoRef.current = monaco.editor.create(editorRef.current, {
+        monacoRef.current = window.monaco.editor.create(editorRef.current, {
             value: openFileContents,
-            language: 'json'
         });
 
         monacoRef.current.onDidChangeModelContent(() => setOpenFileContents(monacoRef.current?.getValue() ?? openFileContents))
     }, [])
     
     useEffect(() => {
-        API.readText(openFilePath)
-            .then(text => setOpenFileContents(text))
-    }, [openFilePath])
+        setFileLoaded(false)
+        if (openTextFile != null) {
+            if (monacoRef.current != null) {
+                window.monaco.editor.setModelLanguage(monacoRef.current.getModel(), EXT_TO_LANGUAGE[getFileExt(openTextFile)]);
+            }
+            API.readText(openTextFile)
+                .then(text => {
+                    setOpenFileContents(text)
+                    setFileLoaded(true)
+                })
+        }
+    }, [openTextFile])
     
     useEffect(() => {
-        // const currentCursor = monacoRef.current?.getCursor()
-        monacoRef.current?.setValue(openFileContents)
-        // monacoRef.current?.setCursor(currentCursor)
+        if (openTextFile != null && fileLoaded) {
+            const currentSelection = monacoRef.current?.getSelection()
+            monacoRef.current?.setValue(openFileContents)
+            if (currentSelection != null) {
+                monacoRef.current?.setSelection(currentSelection)
+            }
 
-        API.writeText(openFilePath, openFileContents)
-    }, [openFileContents])
+            API.writeText(openTextFile, openFileContents)
+        }
+    }, [openFileContents, fileLoaded])
 
     return (
         <div className={`component-text-editor ${selected ? 'selected' : ''}`}>
-            <textarea ref={editorRef}></textarea>
+            <div className="monaco-container" ref={editorRef} />
+            
+            <div className="status-bar">
+                {openTextFile
+                    ? `Editing: ${openTextFile}`
+                    : `<no file open>`}
+            </div>
         </div>
     )
+}
+
+function getFileExt(path: string) {
+    const parts = path.split('.')
+    return parts[parts.length - 1]
+}
+
+const EXT_TO_LANGUAGE: Readonly<{[kind: string]: string}> = {
+    "md": "markdown",
+    "json": "json",
 }

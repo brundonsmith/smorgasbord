@@ -1,12 +1,9 @@
 import React, { FC, useEffect, useRef } from "react"
 import { Terminal as XTerminal } from 'xterm'
 import { API } from "../api";
+import { ToolProps } from "../Dashboard";
 
-type Props = {
-    selected: boolean,
-}
-
-export const Terminal: FC<Props> = ({ selected }) => {
+export const Terminal: FC<ToolProps> = ({ selected }) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerminal | null>(null);
 

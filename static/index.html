@@ -2,17 +2,26 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <link rel="icon" href="logo.png" type="image/png">
 
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
 
     <link rel="stylesheet" type="text/css" href="app.css" />
     <link rel="stylesheet" type="text/css" href="xterm.css" />
-    <link rel="stylesheet" type="text/css" href="editor.main.css">
+    <link rel="stylesheet" type="text/css" href="/monaco-editor/vs/editor/editor.main.css">
 </head>
 
 <body>
     <div id="root"></div>
+
+    <script>
+        var require = { paths: { vs: '/monaco-editor/vs' } };
+    </script>
+    <script src="/monaco-editor/vs/loader.js"></script>
+    <script src="/monaco-editor/vs/editor/editor.main.nls.js"></script>
+    <script src="/monaco-editor/vs/editor/editor.main.js"></script>
+
     <script src="app.js"></script>
 </body>
 

@@ -6,9 +6,7 @@ body {
     font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
     overscroll-behavior-y: none;
 }
-*:not(.Codemirror *), *:not(.Codemirror *)::after, *:not(.Codemirror *)::before {
+*:not(.monaco-editor *), *:not(.monaco-editor *)::after, *:not(.monaco-editor *)::before {
     box-sizing: border-box;
     transition: all 0.1s ease-out;
-    user-select: none;
-    -webkit-user-select: none;
 }
