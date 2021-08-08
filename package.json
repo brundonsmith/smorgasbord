@@ -6,7 +6,9 @@
   "scripts": {
     "build": "esbuild client/index.tsx --outfile=static/app.js --bundle --minify && sass client/index.scss static/app.css",
     "serve": "node server/index.js",
-    "start": "npm run build && npm run serve"
+    "start": "npm run build && npm run serve",
+    "watch": "sass client/index.scss static/app.css --watch & nodemon server/index.js & esbuild client/index.tsx --outfile=static/app.js --bundle --watch"
+
   },
   "author": "",
   "license": "ISC",
@@ -14,7 +16,8 @@
     "@types/codemirror": "^5.60.2",
     "@types/react": "^17.0.16",
     "@types/react-dom": "^17.0.9",
-    "esbuild": "^0.12.18"
+    "esbuild": "^0.12.18",
+    "nodemon": "^2.0.12"
   },
   "dependencies": {
     "express": "^4.17.1",
