@@ -1,6 +1,6 @@
 {
-    "name": "Dashboard",
-    "short_name": "Dashboard",
+    "name": "Smorgasbord",
+    "short_name": "Smorgasbord",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#abcddd",
