@@ -6,7 +6,7 @@ import { Terminal } from './tools/Terminal';
 import { TextEditor } from './tools/TextEditor';
 
 export const Dashboard: FC = () => {
-    const [currentTool, setCurrentTool] = useState<ToolName>('text-editor')
+    const [currentTool, setCurrentTool] = useState<ToolName>('file-explorer')
     const [openTextFile, setOpenTextFile] = useState<string|undefined>('/home/brundolf/git/jqr/README.md')
 
     return (
@@ -16,7 +16,8 @@ export const Dashboard: FC = () => {
                     <div
                         className={`icon ${name} ${currentTool === name ? 'selected' : ''}`}
                         onTouchStart={fakeTouchStartHandler}
-                        onClick={() => setCurrentTool(name as ToolName)} />)}
+                        onClick={() => setCurrentTool(name as ToolName)}
+                        key={name} />)}
             </div>
             <div className="current-tool">
                 {Object.entries(ALL_TOOLS).map(([name, Component]) =>
@@ -24,7 +25,8 @@ export const Dashboard: FC = () => {
                         selected={currentTool === name}
                         openTextFile={openTextFile}
                         onOpenTextFile={setOpenTextFile}
-                        onSetCurrentTool={setCurrentTool} />)}
+                        onSetCurrentTool={setCurrentTool}
+                        key={name} />)}
             </div>
         </div>
     )
@@ -43,7 +45,7 @@ function fakeTouchStartHandler() {
 type ToolName = keyof typeof ALL_TOOLS
 const ALL_TOOLS = {
     'file-explorer': FileExplorer,
-    'terminal': Terminal,
     'text-editor': TextEditor,
+    'terminal': Terminal,
     'settings': Settings,
 } as const;
