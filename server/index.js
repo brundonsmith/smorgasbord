@@ -45,6 +45,15 @@ app.post('/fs/move', async (req, res) => {
     res.send()
 })
 
+app.post('/fs/rename', async (req, res) => {
+    const { filePath, newFileName } = req.query;
+    const newFilePath = path.resolve(path.dirname(filePath), newFileName)
+
+    await fs.rename(filePath, newFilePath)
+
+    res.send()
+})
+
 app.get('/fs/download/:path', async (req, res) => {
     const path = req.params.path;
     console.log({ path })
@@ -84,43 +93,76 @@ app.get('/fs/download/:path', async (req, res) => {
 
 const shell = os.platform() === 'win32' ? 'cmd.exe' : 'bash';
 
-const ptyProcess = pty.spawn(shell, [], {
-    name: 'xterm-color',
-    cols: 80,
-    rows: 30,
-    cwd: process.env.HOME,
-    env: process.env
-});
+class ShellSession {
+    inputBuffer = ''
+    outputBuffer = ''
 
-let shellInputBuffer = ''
+    constructor() {
+        console.log('new shell session created')
+        this.ptyProcess = pty.spawn(shell, [], {
+            name: 'xterm-color',
+            cols: 80,
+            rows: 30,
+            cwd: process.env.HOME,
+            env: process.env,
+            handleFlowControl: true
+        });
 
-let shellOutputBuffer = ''
-ptyProcess.on('data', function (data) {
-    shellOutputBuffer += data;
-});
+        this.ptyProcess.on('data', (data) => {
+            console.log({ data })
+            this.outputBuffer += data;
+        });
+    }
+}
 
+const sessions = new Map()
 
+app.post('/shell/init', (req, res) => {
+    const { session } = req.query
+
+    if (!sessions.has(session)) {
+        sessions.set(session, new ShellSession())
+    }
+
+    res.send()
+})
 
 app.get('/shell', (req, res) => {
-    // if (shellOutputBuffer) {
-    //     console.log('sent back: ' + shellOutputBuffer)
+    const { session } = req.query
+    const shellSession = sessions.get(session)
+
+    if (shellSession == null) {
+        res.sendStatus(500)
+        return
+    }
+    // if (shellSession.outputBuffer) {
+        console.log('sent back: ' + JSON.stringify(shellSession.outputBuffer))
     // }
-    res.send(shellOutputBuffer)
-    shellOutputBuffer = ''
+    res.send(shellSession.outputBuffer)
+    shellSession.outputBuffer = ''
 })
 
 app.post('/shell', (req, res) => {
-    const { input } = req.query
-    shellInputBuffer += input;
+    const { session, input } = req.query
+    const shellSession = sessions.get(session)
+
+    if (shellSession == null) {
+        res.sendStatus(500)
+        return
+    }
+
+    shellSession.ptyProcess.write(input)
+
+    // shellSession.inputBuffer += input;
 
     // console.log('current input buffer: ' + JSON.stringify(shellInputBuffer))
 
-    if (/[\n\r]/.test(shellInputBuffer)) {
-        const commands = shellInputBuffer.split(/[\n\r]/);
-        shellInputBuffer = commands[commands.length - 1]
-        // console.log('writing to shell: ' + commands.slice(0, commands.length - 1).map(cmd => cmd + '\r').join(''))
-        ptyProcess.write(commands.slice(0, commands.length - 1).map(cmd => cmd + '\r').join(''));
-    }
+    // if (/[\n\r]/.test(shellSession.inputBuffer)) {
+    //     const commands = shellSession.inputBuffer.split(/[\n\r]/);
+    //     shellSession.inputBuffer = commands[commands.length - 1]
+    //     // console.log('writing to shell: ' + commands.slice(0, commands.length - 1).map(cmd => cmd + '\r').join(''))
+    //     shellSession.ptyProcess.write(commands.slice(0, commands.length - 1).map(cmd => cmd + '\r\n').join(''));
+    // }
 })
 
 

@@ -6,14 +6,20 @@ export const API = {
         return fetch(`/fs/${encodeURIComponent(dir)}`).then(res => res.json())
     },
     move(src: string, dest: string): Promise<void> {
-        return fetch(`/fs/move?src=${encodeURIComponent(src)}&${encodeURIComponent(dest)}`, { method: 'post' }).then(() => {})
+        return fetch(`/fs/move?src=${encodeURIComponent(src)}&dest=${encodeURIComponent(dest)}`, { method: 'post' }).then(() => {})
+    },
+    rename(path: string, newFileName: string): Promise<void> {
+        return fetch(`/fs/rename?filePath=${encodeURIComponent(path)}&newFileName=${encodeURIComponent(newFileName)}`, { method: 'post' }).then(() => {})
     },
 
-    shellListen(): Promise<string> {
-        return fetch(`/shell`).then(res => res.text())
+    shellInit(session: string): Promise<void> {
+        return fetch(`/shell/init?session=${encodeURIComponent(session)}`, { method: 'post' }).then(() => {})
     },
-    shellCommand(input: string): Promise<void> {
-        return fetch(`/shell?input=${encodeURIComponent(input)}`, { method: 'post' }).then(() => {})
+    shellListen(session: string): Promise<string> {
+        return fetch(`/shell?session=${encodeURIComponent(session)}`).then(res => res.text())
+    },
+    shellCommand(session: string, input: string): Promise<void> {
+        return fetch(`/shell?session=${encodeURIComponent(session)}&input=${encodeURIComponent(input)}`, { method: 'post' }).then(() => {})
     },
 
     readText(path: string): Promise<string> {

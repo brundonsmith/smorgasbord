@@ -1,15 +1,19 @@
 import React, { FC, useState } from "react";
 import { createPortal } from "react-dom";
 import { API, FileInfo } from "../api";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
 import { Modal } from "../components/Modal";
 import { ToolProps } from "../Dashboard";
 import { usePromise } from "../utils";
 
 export const FileExplorer: FC<ToolProps> = ({ selected, onOpenTextFile, onSetCurrentTool }) => {
     const [currentDirectory, setCurrentDirectory] = useState('/home/brundolf')
-    const [files] = usePromise(() => API.getFiles(currentDirectory), [currentDirectory])
+    const [files, _1, _2, updateFiles] = usePromise(() => API.getFiles(currentDirectory), [currentDirectory])
     const [selectedFile, setSelectedFile] = useState<FileInfo|undefined>(undefined)
     const [previewing, setPreviewing] = useState(false)
+    const [renaming, setRenaming] = useState(false)
+    const [newFileName, setNewFileName] = useState('')
 
     // const [sort, setSort] = useState('alpha')
 
@@ -47,7 +51,12 @@ export const FileExplorer: FC<ToolProps> = ({ selected, onOpenTextFile, onSetCur
                             <ActionItem icon="search" action={() => setPreviewing(true)} />}
                         {TEXT_FILE_KINDS.includes(selectedFile.kind) &&
                             <ActionItem icon="notepad" action={() => { onOpenTextFile(selectedFile.fullPath); onSetCurrentTool('text-editor'); }} />}
-                        <ActionItem icon="pencil" action={() => alert('rename ' + selectedFile.name)} />
+                        <ActionItem icon="pencil" action={() => {
+                            setRenaming(true)
+                            setNewFileName(selectedFile.name)
+                        }} />
+                        {navigator.share != null &&
+                            <ActionItem icon="box-out" action={() => share(selectedFile)} />}
                         <ActionItem icon="sign-down" action={() => download(selectedFile)} />
                         <ActionItem icon="trashcan" action={() => alert('delete ' + selectedFile.name)} />
                     </>}
@@ -63,6 +72,19 @@ export const FileExplorer: FC<ToolProps> = ({ selected, onOpenTextFile, onSetCur
             {createPortal(
                 <Modal open={previewing}>
                     (preview)
+                </Modal>, document.body)}
+                
+            {createPortal(
+                <Modal open={renaming} buttons={<>
+                    <Button onClick={async () => {
+                        await rename(selectedFile, newFileName)
+                        setRenaming(false)
+                        updateFiles()
+                        setSelectedFile(undefined)
+                    }}>Done</Button>
+                    <Button onClick={() => setRenaming(false)}>Cancel</Button>
+                </>}>
+                    New name: <Input value={newFileName} onChange={setNewFileName} autoFocus={true} />
                 </Modal>, document.body)}
         </div>
     )
@@ -84,16 +106,20 @@ function download({ name, fullPath }: FileInfo) {
     link.click();
 }
 
-// function downloadFile({ name, fullPath }: FileInfo) {
-//     if (navigator.share) {
-//         navigator.share({
-//             title: name,
-//             url: `/fs/download/${encodeURIComponent(fullPath)}`
-//         }).then(() => alert("Shared!")).catch(console.error);
-//     } else {
-//         alert("Share not supported!")
-//     }
-// }
+async function share({ name, fullPath }: FileInfo) {
+    try {
+        await navigator.share({
+            title: name,
+            url: `/fs/download/${encodeURIComponent(fullPath)}`
+        })
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function rename({ fullPath }: FileInfo, newFileName: string) {
+    await API.rename(fullPath, newFileName)
+}
 
 const RUNNABLE_FILE_KINDS: readonly (string|undefined)[] = ['sh']
 const IMAGE_FILE_KINDS: readonly (string|undefined)[] = ['png', 'jpg', 'jpeg']
@@ -103,14 +129,17 @@ const PREVIEWABLE_FILE_KINDS: readonly (string|undefined)[] = [...IMAGE_FILE_KIN
 const TEXT_FILE_KINDS: readonly (string|undefined)[] = ['txt', 'json', 'js', 'css', 'ts', 'tsx', 'ini', 'md', 'rs', 'toml', 'yaml', 'xml']
 const CODE_FILE_KINDS: readonly (string|undefined)[] = ['json', 'js', 'css', 'ts', 'tsx', 'md', 'rs', 'toml', 'yaml', 'xml']
 
+const EXACT_FILE_KINDS: readonly (string|undefined)[] = ['directory', 'zip', 'pdf']
+
 function getFileIconClasses(file: FileInfo) {
     return [
-        file.kind === 'directory' ? 'directory' : undefined,
         RUNNABLE_FILE_KINDS.includes(file.kind) ? 'runnable' : undefined,
         IMAGE_FILE_KINDS.includes(file.kind) ? 'image' : undefined,
         AUDIO_FILE_KINDS.includes(file.kind) ? 'audio' : undefined,
         VIDEO_FILE_KINDS.includes(file.kind) ? 'video' : undefined,
         TEXT_FILE_KINDS.includes(file.kind) ? 'text' : undefined,
         CODE_FILE_KINDS.includes(file.kind) ? 'code' : undefined,
+        
+        EXACT_FILE_KINDS.includes(file.kind) ? file.kind : undefined,
     ].filter(c => c != null).join(' ')
 }

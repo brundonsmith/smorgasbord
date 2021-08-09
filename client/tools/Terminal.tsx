@@ -1,11 +1,18 @@
-import React, { FC, useEffect, useRef } from "react"
+import React, { FC, useEffect, useRef, useState } from "react"
 import { Terminal as XTerminal } from 'xterm'
 import { API } from "../api";
 import { ToolProps } from "../Dashboard";
 
+const terminalSessionID = String(Math.random())
+
 export const Terminal: FC<ToolProps> = ({ selected }) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerminal | null>(null);
+    const [sessionStarted, setSessionStarted] = useState(false)
+    
+    useEffect(() => {
+        API.shellInit(terminalSessionID).then(() => setSessionStarted(true));
+    }, [])
 
     // useEffect(() => {
     //     function poll() {
@@ -25,20 +32,23 @@ export const Terminal: FC<ToolProps> = ({ selected }) => {
     // }, [xtermRef.current])
 
     useEffect(() => {
-        if (terminalRef.current != null) {
+        if (terminalRef.current != null && sessionStarted) {
             console.log('initialized')
             xtermRef.current = new XTerminal();
             xtermRef.current.open(terminalRef.current);
 
-            xtermRef.current.onData(input => {
-                xtermRef.current?.write(input);
-                API.shellCommand(input)
+            xtermRef.current.onData(async input => {
+                console.log({ input })
+                // xtermRef.current?.write(input);
+                await API.shellCommand(terminalSessionID, input)
+                // const output = await API.shellListen(terminalSessionID)
+                // xtermRef.current?.write(output);
             }) // To the Channel
 
             function poll() {
                 setTimeout(() => {
                     if (xtermRef.current != null) {
-                        API.shellListen().then(output => {
+                        API.shellListen(terminalSessionID).then(output => {
                             xtermRef.current?.write(output);
                             poll();
                         })
@@ -54,7 +64,7 @@ export const Terminal: FC<ToolProps> = ({ selected }) => {
             // return () => xtermRef.current?.dispose()
             
         }
-    }, [])
+    }, [sessionStarted])
 
     return (
         <div className={`component-terminal ${selected ? 'selected' : ''}`} ref={terminalRef}></div>

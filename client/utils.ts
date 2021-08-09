@@ -13,13 +13,15 @@ export function usePromise<T>(fn: () => Promise<T>, dependencies: readonly unkno
     const [error, setError] = useState(undefined)
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
+    useEffect(update, dependencies)
+
+    function update() {
         setLoading(true)
         fn()
             .then(res => setResult(res))
             .catch(err => setError(err))
             .finally(() => setLoading(false))
-    }, dependencies)
+    }
 
-    return [result, error, loading] as const
+    return [result, error, loading, update] as const
 }

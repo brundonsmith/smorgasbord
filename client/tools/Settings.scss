@@ -1,0 +1,71 @@
+
+.component-settings {
+    padding: 10px 20px;
+    display: flex;
+    align-items: flex-start;
+    user-select: none;
+    -webkit-user-select: none;
+
+    > .component-subsections-list {
+        flex-grow:0;
+        flex-shrink: 0;
+    }
+    > .subsection-settings {
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+}
+
+.component-subsections-list {
+    border-radius: 10px;
+    overflow:hidden;
+    min-width: 200px;
+    margin-right: 20px;
+
+    > .subsection {
+        display:flex;
+        align-items: center;
+        padding: 10px;
+        background: #dff5ff;
+        -webkit-tap-highlight-color: transparent;
+        
+        &.selected {
+            background: rgb(0, 122, 255);
+            color: white;
+            // transition: background-color 0.1s ease-out 0.1s;
+        }
+
+        &:not(:first-child) {
+            border-top: 1px solid #ddd;
+        }
+    }
+}
+
+.component-subsection-settings {
+    position: relative;
+
+    > .subsection {
+        position: absolute;
+        transition: all 0.1s ease-out 0.1s;
+            
+        &:not(.selected) {
+            opacity:0;
+            transform: translateY(10px);
+            transition: all 0.1s ease-out;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        > .component-setting-item {
+            border-radius: 10px;
+            background: #dff5ff;
+            padding: 10px;
+    
+            &:not(:first-child) {
+                margin-top: 10px;
+            }
+    
+        }
+    }
+}

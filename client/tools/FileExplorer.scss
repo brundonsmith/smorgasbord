@@ -75,6 +75,12 @@
                 &.runnable::before {
                     background-image: url("/icons/file-exe.svg");
                 }
+                &.zip::before {
+                    background-image: url("/icons/file-zip.svg");
+                }
+                &.pdf::before {
+                    background-image: url("/icons/file-pdf.svg");
+                }
             }
         }
 

@@ -6,7 +6,7 @@ import { Terminal } from './tools/Terminal';
 import { TextEditor } from './tools/TextEditor';
 
 export const Dashboard: FC = () => {
-    const [currentTool, setCurrentTool] = useState<ToolName>('file-explorer')
+    const [currentTool, setCurrentTool] = useState<ToolName>('settings')
     const [openTextFile, setOpenTextFile] = useState<string|undefined>('/home/brundolf/git/jqr/README.md')
 
     return (
