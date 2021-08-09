@@ -4,60 +4,83 @@
     flex-direction: column;
     user-select: none;
     -webkit-user-select: none;
-    
-    > .files {
-        overflow-y:auto;
-        display:flex;
-        flex-wrap: wrap;
-        padding:20px;
+
+    > .main {
         flex-grow:1;
         flex-shrink:1;
-        align-content: flex-start;
+        display:flex;
+        min-height: 0;
 
-        > .file {
-            margin: 10px;
-            flex-grow:0;
-            flex-shrink:0;
-            width: 120px;
-            text-align:center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
-            &:active::before {
-                transform: scale(0.9);
-            }
+        > .files {
+            overflow-y:auto;
+            display:flex;
+            flex-wrap: wrap;
+            padding:20px;
+            flex-grow:1;
+            flex-shrink:1;
+            align-content: flex-start;
     
-            &::before {
-                content: '';
-                display: block;
-                margin:0 auto;
-                background-image: url("/icons/file-empty.svg");
-                background-repeat:no-repeat;
-                background-size: contain;
-                background-position: center;
-                width: 50px;
-                height: 50px;
+            > .file {
+                margin: 10px;
                 flex-grow:0;
                 flex-shrink:0;
-                    
-            }
+                width: 90px;
+                text-align:center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                border-radius: 10px;
+                border: 3px solid transparent;
+
+                &.selected {
+                    border-color: #007aff;
+                }
     
-            &.directory::before {
-                background-image: url("/icons/folder.svg");
+                &:active::before {
+                    transform: scale(0.9);
+                }
+        
+                &::before {
+                    content: '';
+                    display: block;
+                    margin:0 auto;
+                    background-image: url("/icons/file-empty.svg");
+                    background-repeat:no-repeat;
+                    background-size: contain;
+                    background-position: center;
+                    width: 50px;
+                    height: 50px;
+                    flex-grow:0;
+                    flex-shrink:0;
+                }
+        
+                &.directory::before {
+                    background-image: url("/icons/folder.svg");
+                }
+                &.text::before {
+                    background-image: url("/icons/file-text.svg");
+                }
+                &.code::before {
+                    background-image: url("/icons/file-code.svg");
+                }
+                &.image::before {
+                    background-image: url("/icons/file-picture.svg");
+                }
+                &.audio::before {
+                    background-image: url("/icons/file-sound.svg");
+                }
+                &.video::before {
+                    background-image: url("/icons/file-video.svg");
+                }
+                &.runnable::before {
+                    background-image: url("/icons/file-exe.svg");
+                }
             }
-            &.txt::before,
-            &.ini::before {
-                background-image: url("/icons/file-text.svg");
-            }
-            &.json::before,
-            &.js::before,
-            &.css::before,
-            &.html::before,
-            &.ts::before,
-            &.tsx::before {
-                background-image: url("/icons/file-code.svg");
-            }
+        }
+
+        > .action-menu {
+            flex-grow: 0;
+            flex-shrink: 0;
         }
     }
 
@@ -72,10 +95,45 @@
             padding: 5px;
 
             &:not(:first-child)::before {
-                content: '>';
+                content: '❯';
                 color: rgb(0, 122, 255);
                 font-weight: bold;
             }
         }
+    }
+}
+
+.action-menu {
+    display:flex;
+    flex-direction: column;
+    background: #abcddd;
+}
+
+.component-action-item {
+    padding: 10px;
+
+    &::after {
+        content: '';
+        display:block;
+        width:40px;
+        height:40px;
+        border-radius: 22.77%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 100%;
+        background-image: var(--icon-url);
+    }
+    
+    @media(max-width: 600px) {
+        padding: 4px;
+
+        &::after {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    &:active::after {
+        transform: scale(0.9);
     }
 }

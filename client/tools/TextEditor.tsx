@@ -29,7 +29,7 @@ export const TextEditor: FC<ToolProps> = ({ selected, openTextFile }) => {
         setFileLoaded(false)
         if (openTextFile != null) {
             if (monacoRef.current != null) {
-                window.monaco.editor.setModelLanguage(monacoRef.current.getModel(), EXT_TO_LANGUAGE[getFileExt(openTextFile)]);
+                window.monaco.editor.setModelLanguage(monacoRef.current.getModel(), EXT_TO_LANGUAGE[getFileExt(openTextFile)] ?? getFileExt(openTextFile));
             }
             API.readText(openTextFile)
                 .then(text => {
@@ -72,4 +72,10 @@ function getFileExt(path: string) {
 const EXT_TO_LANGUAGE: Readonly<{[kind: string]: string}> = {
     "md": "markdown",
     "json": "json",
+    "js": "javascript",
+    "ts": "typescript",
+    "tsx": "typescript-react",
+    "rs": "rust",
+    "py": "python",
+    "sh": "bash",
 }
